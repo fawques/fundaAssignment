@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FundaAssignment.Interfaces;
+using FundaAssignment.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -27,6 +29,8 @@ namespace FundaAssignment
             using (host)
             {
                 await host.StartAsync();
+                var service = host.Services.GetRequiredService<MakelaarService>();
+                await service.GetTopMakelaars();
 
                 Console.WriteLine("Press Ctrl + C to exit");
                 await host.WaitForShutdownAsync();

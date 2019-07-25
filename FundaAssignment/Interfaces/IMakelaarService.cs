@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 
 namespace FundaAssignment.Interfaces
 {
-    public interface IFundaClient
+    public interface IMakelaarService
     {
-        Task<IEnumerable<Listing>> Query(string type, string location, string extra);
+        Task<IEnumerable<Makelaar>> GetTopMakelaars(int amount = 10);
     }
 }

@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using FundaAssignment.Interfaces;
 using FundaAssignment.Model;
 
-namespace FundaAssignment
+namespace FundaAssignment.Services
 {
     public class FundaClient : IFundaClient
     {
