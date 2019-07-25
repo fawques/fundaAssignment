@@ -11,15 +11,33 @@ using Xunit;
 
 namespace FundaAssignmentTests
 {
-    public class ServiceTest
+    public class MakelaarServiceTest
     {
-        Mock<IFundaClient> mockFundaClient;
         MakelaarService service;
 
-        public ServiceTest()
+        public MakelaarServiceTest()
         {
-            mockFundaClient = new Mock<IFundaClient>();
-            mockFundaClient.Setup(f => f.Query("koop", "amsterdam", null)).ReturnsAsync(new List<Listing>
+            service = new MakelaarService(new MakelaarFactory());
+        }
+
+        [Fact]
+        public void GetTopMakelaars_EmptyList_NoneReturned()
+        {
+            // Arrange
+            var listings = new List<Listing> { };
+
+            // Act
+            var topMakelaars = service.GetTopMakelaars(listings);
+
+            // Assert
+            Assert.Empty(topMakelaars);
+        }
+
+        [Fact]
+        public void GetTopMakelaars_FewMakelaarsOneListingEach_AllMakelaarsReturned()
+        {
+            // Arrange
+            var listings = new List<Listing>
             {
                 new Listing
                 {
@@ -36,32 +54,10 @@ namespace FundaAssignmentTests
                     MakelaarId = 3,
                     MakelaarNaam = "M3",
                 },
-            });
-
-            service = new MakelaarService(mockFundaClient.Object, new MakelaarFactory());
-        }
-
-        [Fact]
-        public async Task GetTopMakelaars_EmptyList_NoneReturned()
-        {
-            // Arrange
-            mockFundaClient.Reset();
-            mockFundaClient.Setup(f => f.Query("koop", "amsterdam", null)).ReturnsAsync(Enumerable.Empty<Listing>());
+            };
 
             // Act
-            var topMakelaars = await service.GetTopMakelaars();
-
-            // Assert
-            Assert.Empty(topMakelaars);
-        }
-
-        [Fact]
-        public async Task GetTopMakelaars_FewMakelaarsOneListingEach_AllMakelaarsReturned()
-        {
-            // Arrange
-
-            // Act
-            var topMakelaars = await service.GetTopMakelaars();
+            var topMakelaars = service.GetTopMakelaars(listings, 10);
 
             // Assert
             Assert.Equal(3, topMakelaars.Count());
@@ -71,12 +67,30 @@ namespace FundaAssignmentTests
         }
 
         [Fact]
-        public async Task GetTopMakelaars_ManyMakelaarsOneListingEach_FirstMakelaarsReturned()
+        public void GetTopMakelaars_ManyMakelaarsOneListingEach_FirstMakelaarsReturned()
         {
             // Arrange
+            var listings = new List<Listing>
+            {
+                new Listing
+                {
+                    MakelaarId = 1,
+                    MakelaarNaam = "M1",
+                },
+                new Listing
+                {
+                    MakelaarId = 2,
+                    MakelaarNaam = "M2",
+                },
+                new Listing
+                {
+                    MakelaarId = 3,
+                    MakelaarNaam = "M3",
+                },
+            };
 
             // Act
-            var topMakelaars = await service.GetTopMakelaars(2);
+            var topMakelaars = service.GetTopMakelaars(listings, 2);
 
             // Assert
             Assert.Equal(2, topMakelaars.Count());
@@ -86,10 +100,10 @@ namespace FundaAssignmentTests
         }
 
         [Fact]
-        public async Task GetTopMakelaars_ManyMakelaarsManyListings_TopMakelaarsReturned()
+        public void GetTopMakelaars_ManyMakelaarsManyListings_TopMakelaarsReturned()
         {
             // Arrange
-            mockFundaClient.Setup(f => f.Query("koop", "amsterdam", null)).ReturnsAsync(new List<Listing>
+            var listings = new List<Listing>
             {
                 new Listing
                 {
@@ -126,17 +140,28 @@ namespace FundaAssignmentTests
                     MakelaarId = 3,
                     MakelaarNaam = "M3",
                 },
-            });
+                new Listing
+                {
+                    MakelaarId = 4,
+                    MakelaarNaam = "M4",
+                },
+                new Listing
+                {
+                    MakelaarId = 4,
+                    MakelaarNaam = "M4",
+                },
+            };
 
 
             // Act
-            var topMakelaars = await service.GetTopMakelaars(2);
+            var topMakelaars = service.GetTopMakelaars(listings, 3);
 
             // Assert
-            Assert.Equal(2, topMakelaars.Count());
+            Assert.Equal(3, topMakelaars.Count());
             Assert.DoesNotContain(topMakelaars, m => m.MakelaarId == 1);
             Assert.Contains(topMakelaars, m => m.MakelaarId == 2);
             Assert.Contains(topMakelaars, m => m.MakelaarId == 3);
+            Assert.Contains(topMakelaars, m => m.MakelaarId == 4);
         }
     }
 }

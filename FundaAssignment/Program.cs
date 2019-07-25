@@ -30,7 +30,10 @@ namespace FundaAssignment
             {
                 await host.StartAsync();
                 var service = host.Services.GetRequiredService<MakelaarService>();
-                await service.GetTopMakelaars();
+                var fundaClient = host.Services.GetRequiredService<IFundaClient>();
+
+                var listings = await fundaClient.Query("koop", "amsterdam", null);
+                service.GetTopMakelaars(listings);
 
                 Console.WriteLine("Press Ctrl + C to exit");
                 await host.WaitForShutdownAsync();

@@ -6,6 +6,6 @@ namespace FundaAssignment.Interfaces
 {
     public interface IMakelaarService
     {
-        Task<IEnumerable<Makelaar>> GetTopMakelaars(int amount = 10);
+        IEnumerable<Makelaar> GetTopMakelaars(IEnumerable<Listing> listings, int amount = 10);
     }
 }
