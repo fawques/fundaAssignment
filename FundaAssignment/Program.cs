@@ -16,6 +16,8 @@ namespace FundaAssignment
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddLogging();
+                    services.AddTransient<IMakelaarService, MakelaarService>();
+                    services.AddTransient<IMakelaarFactory, MakelaarFactory>();
                     services.AddHttpClient<IFundaClient, FundaClient>(client =>
                         client.BaseAddress = new Uri("https://funda.nl"));
                 })
@@ -29,7 +31,7 @@ namespace FundaAssignment
             using (host)
             {
                 await host.StartAsync();
-                var service = host.Services.GetRequiredService<MakelaarService>();
+                var service = host.Services.GetRequiredService<IMakelaarService>();
                 var fundaClient = host.Services.GetRequiredService<IFundaClient>();
 
                 var listings = await fundaClient.Query("koop", "amsterdam", null);
