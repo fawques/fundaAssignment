@@ -17,4 +17,13 @@
     <ProjectReference Include="..\FundaAssignment\FundaAssignment.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Data\koopAmsterdam.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\koopAmsterdamTuin.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
