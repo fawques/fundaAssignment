@@ -6,6 +6,7 @@ using System.Web;
 using FundaAssignment.Interfaces;
 using FundaAssignment.Model;
 using FundaAssignment.Model.API;
+using JackLeitch.RateGate;
 using Newtonsoft.Json;
 
 namespace FundaAssignment.Services
@@ -46,13 +47,18 @@ namespace FundaAssignment.Services
 
             int page = 1;
             AanbodDto responseModel;
-            do
-            {
-                responseModel = await QuerySinglePage(type, query, page);
-                listings.AddRange(responseModel.Objects);
-                page++;
 
-            } while (page <= responseModel.Paging.AantalPaginas);
+            using (var rateGate = new RateGate(100, TimeSpan.FromMinutes(1)))
+            {
+                do
+                {
+                    rateGate.WaitToProceed();
+                    responseModel = await QuerySinglePage(type, query, page);
+                    listings.AddRange(responseModel.Objects);
+                    page++;
+
+                } while (page <= responseModel.Paging.AantalPaginas);
+            }
 
             return listings;
         }
