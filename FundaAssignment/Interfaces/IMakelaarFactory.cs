@@ -7,6 +7,6 @@ namespace FundaAssignment.Interfaces
 {
     public interface IMakelaarFactory
     {
-        Makelaar CreateMakelaar(int id, string name);
+        Makelaar CreateMakelaar(int id, string name, int amount);
     }
 }

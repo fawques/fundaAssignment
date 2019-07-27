@@ -1,4 +1,5 @@
 ﻿using FundaAssignment.Interfaces;
+using FundaAssignment.Model;
 using FundaAssignment.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -7,6 +8,7 @@ using Polly;
 using Polly.Extensions.Http;
 using Polly.Timeout;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -23,6 +25,7 @@ namespace FundaAssignment
                     services.AddLogging();
                     services.AddTransient<IMakelaarService, MakelaarService>();
                     services.AddTransient<IMakelaarFactory, MakelaarFactory>();
+                    services.AddTransient<IMainService, MainService>();
 
                     var retryPolicy =
                     services.AddHttpClient<IFundaClient, FundaClient>()
@@ -54,14 +57,27 @@ namespace FundaAssignment
             using (host)
             {
                 await host.StartAsync();
-                var service = host.Services.GetRequiredService<IMakelaarService>();
-                var fundaClient = host.Services.GetRequiredService<IFundaClient>();
+                var service = host.Services.GetRequiredService<IMainService>();
+                var result = await service.CalculateTopMakelaars();
+                Console.WriteLine("Top 10 Amsterdam Makelaars calculated:");
+                PrintMakelaarTable(result.TopAmsterdam);
 
-                var listings = await fundaClient.Query("koop", "amsterdam", null);
-                service.GetTopMakelaars(listings);
+                Console.WriteLine("Top 10 Amsterdam Makelaars with Tuin calculated:");
+                PrintMakelaarTable(result.TopAmsterdamTuin);
 
                 Console.WriteLine("Press Ctrl + C to exit");
                 await host.WaitForShutdownAsync();
+            }
+        }
+
+        static void PrintMakelaarTable(IEnumerable<Makelaar> makelaarList)
+        {
+            TableConsoleWriter.PrintLine();
+            TableConsoleWriter.PrintRow(new[] { "ID", "Name", "Amount" });
+            TableConsoleWriter.PrintLine();
+            foreach (var makelaar in makelaarList)
+            {
+                TableConsoleWriter.PrintRow(new[] { makelaar.MakelaarId.ToString(), makelaar.MakelaarNaam, makelaar.ListingAmount.ToString() });
             }
         }
     }

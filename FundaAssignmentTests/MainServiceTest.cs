@@ -7,6 +7,7 @@ using Moq;
 using FundaAssignment.Interfaces;
 using FundaAssignment.Model;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace FundaAssignmentTests
 {
@@ -115,11 +116,13 @@ namespace FundaAssignmentTests
                 m => Assert.Equal(2, m.MakelaarId),
                 m => Assert.Equal(4, m.MakelaarId),
                 m => Assert.Equal(1, m.MakelaarId));
+            Assert.Equal(4, topMakelaarsResult.TopAmsterdam.First().ListingAmount);
 
             Assert.Collection(topMakelaarsResult.TopAmsterdamTuin,
                 m => Assert.Equal(2, m.MakelaarId),
                 m => Assert.Equal(4, m.MakelaarId),
                 m => Assert.Equal(3, m.MakelaarId));
+            Assert.Equal(2, topMakelaarsResult.TopAmsterdamTuin.First().ListingAmount);
         }
     }
 }

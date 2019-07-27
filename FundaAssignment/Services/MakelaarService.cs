@@ -19,7 +19,7 @@ namespace FundaAssignment.Services
         {
             var topMakelaars = listings.GroupBy(l => (l.MakelaarId, l.MakelaarNaam))
                 .OrderByDescending(group => group.Count())
-                .Select(m => makelaarFactory.CreateMakelaar(m.Key.MakelaarId, m.Key.MakelaarNaam))
+                .Select(group => makelaarFactory.CreateMakelaar(group.Key.MakelaarId, group.Key.MakelaarNaam, group.Count()))
                 .Take(amount);
 
             return topMakelaars;
