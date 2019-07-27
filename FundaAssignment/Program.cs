@@ -3,7 +3,12 @@ using FundaAssignment.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.Extensions.Http;
+using Polly.Timeout;
 using System;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace FundaAssignment
@@ -18,8 +23,26 @@ namespace FundaAssignment
                     services.AddLogging();
                     services.AddTransient<IMakelaarService, MakelaarService>();
                     services.AddTransient<IMakelaarFactory, MakelaarFactory>();
-                    services.AddHttpClient<IFundaClient, FundaClient>(client =>
-                        client.BaseAddress = new Uri("https://funda.nl"));
+
+                    var retryPolicy =
+                    services.AddHttpClient<IFundaClient, FundaClient>()
+                         .AddPolicyHandler((svc, request) => Policy<HttpResponseMessage>
+                            .Handle<HttpRequestException>().Or<TaskCanceledException>()
+                            .OrResult(response => response.StatusCode == HttpStatusCode.Unauthorized)
+                            .WaitAndRetryAsync(new[]
+                            {
+                                // Rate limited, give the API some space
+                                TimeSpan.FromSeconds(5),
+                                TimeSpan.FromSeconds(10),
+                                TimeSpan.FromSeconds(15),
+                                TimeSpan.FromSeconds(30)
+                                // If after a whole minute it still returns 401, this is not a rate limit issue and it should fail
+                            }, onRetry: (outcome, timespan, retryAttempt, context) =>
+                                {
+                                    svc.GetService<ILogger<FundaClient>>()
+                                        .LogWarning("Delaying for {delay}ms, then making retry {retry}.", timespan.TotalMilliseconds, retryAttempt);
+                                })
+                    );
                 })
                 .ConfigureLogging((hostContext, configLogging) =>
                 {
