@@ -1,1 +1,2 @@
 # fundaAssignment
+[![Build Status](https://dev.azure.com/fawques/fundaAssignment/_apis/build/status/vguzmanp.fundaAssignment?branchName=master)](https://dev.azure.com/fawques/fundaAssignment/_build/latest?definitionId=1&branchName=master)
